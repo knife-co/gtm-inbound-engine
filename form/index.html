@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Omiwade — GTM systems intake</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  /* Layout: one column, max 600px, form is the whole page. */
+  :root{
+    --bg:#F6F5F2; --surface:#FFFFFF; --ink:#14181C; --muted:#5A6472;
+    --line:#E2E0DB; --line-strong:#CFCCC5; --accent:#0E6B59; --accent-ink:#FFFFFF;
+    --warn-bg:#FBF4E6; --warn-ink:#6B4E12;
+    --display:"Fraunces",Georgia,"Times New Roman",serif;
+    --body:"Public Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    color-scheme:light;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --bg:#121417; --surface:#191C20; --ink:#ECEDEE; --muted:#99A1AC;
+      --line:#2A2F35; --line-strong:#3A4049; --accent:#3FBF9F; --accent-ink:#09150F;
+      --warn-bg:#241F12; --warn-ink:#E0C274;
+      color-scheme:dark;
+    }
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--bg); color:var(--ink); font-family:var(--body);
+    font-size:16px; line-height:1.55; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{
+    max-width:600px; margin:0 auto;
+    padding-left:max(20px,env(safe-area-inset-left,0px));
+    padding-right:max(20px,env(safe-area-inset-right,0px));
+    padding-block:48px 64px;
+  }
+  .eyebrow{
+    font-size:12px; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--muted); font-weight:600; margin:0 0 18px;
+  }
+  h1{
+    font-family:var(--display); font-weight:600; font-size:clamp(30px,6vw,40px);
+    line-height:1.12; letter-spacing:-.01em; margin:0 0 14px; text-wrap:balance;
+  }
+  .lede{margin:0 0 30px; color:var(--muted); font-size:17px; max-width:52ch}
+  .promises{
+    border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+    padding-block:18px; margin:0 0 34px; display:grid; gap:10px;
+  }
+  .promise{display:flex; gap:12px; align-items:baseline; font-size:14.5px}
+  .promise b{
+    font-family:var(--mono); font-weight:500; font-size:12.5px; color:var(--accent);
+    min-width:52px; letter-spacing:-.02em;
+  }
+  form{display:grid; gap:22px}
+  .field{display:grid; gap:7px; min-width:0}
+  label{font-size:14px; font-weight:600}
+  .hint{font-size:13px; color:var(--muted); font-weight:400}
+  input[type=email],input[type=text],select,textarea{
+    font:inherit; font-size:16px; color:var(--ink); background:var(--surface);
+    border:1px solid var(--line-strong); border-radius:7px; padding:11px 12px;
+    width:100%; min-width:0;
+  }
+  textarea{resize:vertical; min-height:88px}
+  input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,
+  .opt:focus-within{outline:2px solid var(--accent); outline-offset:2px}
+  fieldset{border:0; padding:0; margin:0; display:grid; gap:7px; min-width:0}
+  legend{font-size:14px; font-weight:600; padding:0}
+  .opts{display:grid; gap:8px}
+  .opt{
+    display:flex; gap:11px; align-items:flex-start; cursor:pointer;
+    border:1px solid var(--line-strong); border-radius:7px; padding:11px 12px;
+    background:var(--surface);
+  }
+  .opt input{margin:2px 0 0; accent-color:var(--accent); flex:none}
+  .opt span{font-size:15px}
+  .opt:has(input:checked){border-color:var(--accent); box-shadow:inset 0 0 0 1px var(--accent)}
+  .consent{
+    display:flex; gap:11px; align-items:flex-start; font-size:14.5px;
+    color:var(--muted); cursor:pointer;
+  }
+  .consent input{margin:3px 0 0; accent-color:var(--accent); flex:none}
+  button{
+    font:inherit; font-weight:600; font-size:16px; color:var(--accent-ink);
+    background:var(--accent); border:0; border-radius:7px; padding:13px 20px;
+    cursor:pointer; justify-self:start;
+  }
+  button[disabled]{opacity:.55; cursor:progress}
+  .trap{position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden}
+  .err{
+    background:var(--warn-bg); color:var(--warn-ink); border-radius:7px;
+    padding:11px 13px; font-size:14.5px;
+  }
+  .done{display:grid; gap:18px}
+  .done h2{font-family:var(--display); font-weight:600; font-size:27px; margin:0; line-height:1.2}
+  .receipt{
+    border:1px solid var(--line); border-radius:8px; background:var(--surface);
+    padding:16px 18px; display:grid; gap:9px;
+  }
+  .row{display:flex; justify-content:space-between; gap:16px; font-size:14px}
+  .row span:first-child{color:var(--muted)}
+  .row span:last-child{font-family:var(--mono); font-size:13px; font-variant-numeric:tabular-nums}
+  footer{
+    margin-top:44px; padding-top:20px; border-top:1px solid var(--line);
+    font-size:13.5px; color:var(--muted);
+  }
+  footer p{margin:0 0 9px}
+  @media (prefers-reduced-motion:no-preference){
+    .done{animation:rise .3s ease-out}
+    @keyframes rise{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+  }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <p class="eyebrow">Your Name &middot; GTM systems</p>
+  <h1>Tell me what you&rsquo;re trying to fix</h1>
+  <p class="lede">I build the systems behind a sales pipeline: finding the right companies,
+  keeping the data clean, spotting when someone is ready to buy, and getting leads to the
+  right person quickly. If something in yours is broken, manual, or guesswork, start here.</p>
+
+  <div class="promises">
+    <p class="promise"><b>&lt; 5 sec</b><span>You get an acknowledgement email, usually in about two seconds.</span></p>
+    <p class="promise"><b>auto</b><span>Scored and routed the moment it arrives. Nothing sits in an inbox waiting to be noticed.</span></p>
+    <p class="promise"><b>no px</b><span>No tracking pixels, ever. One-click unsubscribe on anything I send.</span></p>
+  </div>
+
+  <div id="panel">
+    <form id="f" novalidate>
+      <div class="field">
+        <label for="email">Work email</label>
+        <input id="email" name="email" type="email" autocomplete="email" required>
+      </div>
+
+      <div class="field">
+        <label for="full_name">Your name</label>
+        <input id="full_name" name="full_name" type="text" autocomplete="name" required>
+      </div>
+
+      <div class="field">
+        <label for="job_title">Your role</label>
+        <select id="job_title" name="job_title" required>
+          <option value="">Choose one</option>
+          <option>Founder or CEO</option>
+          <option>Head of Sales</option>
+          <option>Revenue Operations</option>
+          <option>Marketing</option>
+          <option>Operations</option>
+          <option>Something else</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="company_size">How many people work there</label>
+        <select id="company_size" name="company_size" required>
+          <option value="">Choose one</option>
+          <option value="1-10">1 to 10</option>
+          <option value="11-50">11 to 50</option>
+          <option value="51-200">51 to 200</option>
+          <option value="201-500">201 to 500</option>
+          <option value="501-1000">501 to 1,000</option>
+          <option value="1000+">More than 1,000</option>
+        </select>
+      </div>
+
+      <fieldset>
+        <legend>What brings you here</legend>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="intent" value="talk_to_sales" required><span>I have a problem I want to talk through</span></label>
+          <label class="opt"><input type="radio" name="intent" value="pricing"><span>I want to understand what this costs</span></label>
+          <label class="opt"><input type="radio" name="intent" value="researching"><span>Just looking around for now</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>When would you want it solved</legend>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="timing" value="this_quarter" required><span>This quarter</span></label>
+          <label class="opt"><input type="radio" name="timing" value="six_months"><span>Within six months</span></label>
+          <label class="opt"><input type="radio" name="timing" value="no_timeline"><span>No timeline yet</span></label>
+        </div>
+      </fieldset>
+
+      <div class="field">
+        <label for="notes">Anything else <span class="hint">&mdash; optional</span></label>
+        <textarea id="notes" name="notes" placeholder="What is broken, or what you are hoping to change."></textarea>
+      </div>
+
+      <label class="consent">
+        <input id="consent" name="consent" type="checkbox" value="true" required>
+        <span>You can email me about this. I can unsubscribe in one click at any time.</span>
+      </label>
+
+      <div class="trap" aria-hidden="true">
+        <label for="company_website">Company website</label>
+        <input id="company_website" name="company_website" type="text" tabindex="-1" autocomplete="off">
+      </div>
+
+      <div id="err" class="err" hidden></div>
+      <button id="send" type="submit">Send it</button>
+    </form>
+  </div>
+
+  <footer>
+    <p>This form is one piece of a go-to-market system I built and run myself &mdash; capture,
+    scoring, routing, follow-up and deliverability.</p>
+    <p>Testing it rather than hiring? Say so in the last box. It still goes through the whole
+    pipeline, which is the point.</p>
+  </footer>
+</main>
+
+<script>
+(function(){
+  var form = document.getElementById("f");
+  var panel = document.getElementById("panel");
+  var err = document.getElementById("err");
+  var btn = document.getElementById("send");
+
+  function fail(msg){ err.textContent = msg; err.hidden = false; }
+
+  form.addEventListener("submit", function(ev){
+    ev.preventDefault();
+    err.hidden = true;
+
+    if(!form.checkValidity()){
+      fail("Please fill in the required fields, including the tick box at the bottom.");
+      form.reportValidity();
+      return;
+    }
+
+    var data = {};
+    new FormData(form).forEach(function(v, k){ data[k] = v; });
+    data.source = "public_form";
+
+    btn.disabled = true;
+    btn.textContent = "Sending\\u2026";
+    var t0 = performance.now();
+
+    fetch("https://YOUR_PROJECT_REF.supabase.co/functions/v1/inbound-capture", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    })
+    .then(function(r){ return r.json().then(function(j){ return { ok: r.ok, body: j }; }); })
+    .then(function(res){
+      var ms = Math.round(performance.now() - t0);
+      if(!res.ok || !res.body || res.body.ok !== true){
+        throw new Error("rejected");
+      }
+      var ref = res.body.reference;
+      panel.innerHTML =
+        '<div class="done">' +
+          '<h2>Got it, thank you.</h2>' +
+          '<p style="margin:0;color:var(--muted)">An acknowledgement is on its way to your inbox. ' +
+          'If it is not there in a minute, check spam and tell me &mdash; that is useful to know.</p>' +
+          '<div class="receipt">' +
+            '<div class="row"><span>Reference</span><span>#' + ref + '</span></div>' +
+            '<div class="row"><span>Round trip from your browser</span><span>' + ms + ' ms</span></div>' +
+          '</div>' +
+        '</div>';
+      panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    })
+    .catch(function(){
+      btn.disabled = false;
+      btn.textContent = "Send it";
+      fail("That did not go through. Try once more, and if it still fails, email me directly at you@example.com.");
+    });
+  });
+})();
+</script>
+</body>
+</html>
